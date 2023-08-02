@@ -3,11 +3,11 @@ version: "3.9"
 services:
   app:
     build:
-      context: .
+      context: ./docker/django
     restart: always
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - DJANGO_ALLOWED_HOSTS=${DOMAIN}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
 
   proxy:
     build:

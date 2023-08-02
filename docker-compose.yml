@@ -3,11 +3,32 @@ version: '3.9'
 services:
   app:
     build:
-      context: .
-    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+      context: ./docker/django
+    #command: sh -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./app:/app
+      - ./docker/django/app:/app
     ports:
       - 8000:8000
     environment:
-      - DJANGO_DEBUG=1
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    networks:
+      - django_net
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    networks:
+      - django_net
+  
+networks:
+  django_net:
+    driver: bridge
