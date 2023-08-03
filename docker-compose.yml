@@ -4,7 +4,6 @@ services:
   app:
     build:
       context: ./docker/django
-    #command: sh -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./docker/django/app:/app
     ports:
@@ -26,9 +25,14 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - django_net
   
 networks:
   django_net:
     driver: bridge
+
+volumes:
+  postgres-data:
