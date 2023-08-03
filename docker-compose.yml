@@ -5,6 +5,7 @@ services:
     build:
       context: ./docker/django
     volumes:
+      - ./data:/vol
       - ./docker/django/app:/app
     ports:
       - 8000:8000
