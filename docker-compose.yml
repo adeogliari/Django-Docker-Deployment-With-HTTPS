@@ -20,6 +20,21 @@ services:
     networks:
       - django_net
 
+  certbot:
+    build:
+      context: ./docker/certbot
+    command: echo "Skipping..."
+    depends_on:
+      - proxy
+    environment:
+      - EMAIL=${ACME_DEFAULT_EMAIL}
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - certbot-web:/vol/www
+      - certbot-certs:/etc/letsencrypt/
+    networks:
+      - django_net
+
   proxy:
     build:
       context: ./docker/proxy
@@ -36,21 +51,6 @@ services:
     ports:
       - 80:80
       - 443:443
-    networks:
-      - django_net
-
-  certbot:
-    build:
-      context: ./docker/certbot
-    command: echo "Skipping..."
-    depends_on:
-      - proxy
-    environment:
-      - EMAIL=${ACME_DEFAULT_EMAIL}
-      - DOMAIN=${DOMAIN}
-    volumes:
-      - certbot-web:/vol/www
-      - certbot-certs:/etc/letsencrypt/
     networks:
       - django_net
 
