@@ -4,11 +4,8 @@ services:
   app:
     build:
       context: ./docker/django
-    #ports:
-      #- 8000:8000
-    volumes:
-      - static-data:/vol/web
-      - ./docker/django/app:/app
+    restart: always
+    depends_on: db
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
@@ -17,6 +14,8 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
+    volumes:
+      - static-data:/vol/web
     networks:
       - django_net
 
@@ -26,16 +25,30 @@ services:
     restart: always
     depends_on:
       - app
-    ports:
-      - 80:80
-      - 443:443
+    environment:
+      - DOMAIN=${DOMAIN}
     volumes:
       - static-data:/vol/static
       - certbot-web:/vol/www
       - proxy-dhparams:/vol/proxy
       - certbot-certs:/etc/letsencrypt
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - django_net
+
+  certbot:
+    build:
+      context: ./docker/certbot
+    depends_on:
+      - proxy
     environment:
+      - EMAIL=${ACME_DEFAULT_EMAIL}
       - DOMAIN=${DOMAIN}
+    volumes:
+      - certbot-web:/vol/www
+      - certbot-certs:/etc/letsencrypt/
     networks:
       - django_net
 
