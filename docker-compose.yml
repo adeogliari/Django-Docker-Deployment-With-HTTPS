@@ -5,7 +5,8 @@ services:
     build:
       context: ./docker/django
     restart: always
-    depends_on: db
+    depends_on: 
+      - db
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
