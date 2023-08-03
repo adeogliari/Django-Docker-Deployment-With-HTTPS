@@ -33,7 +33,7 @@ services:
       - certbot-web:/vol/www
       - certbot-certs:/etc/letsencrypt/
     networks:
-      - django_net
+      - django_netdoc
 
   proxy:
     build:
