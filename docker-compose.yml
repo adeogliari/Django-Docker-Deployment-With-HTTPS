@@ -4,11 +4,11 @@ services:
   app:
     build:
       context: ./docker/django
-    volumes:
-      - ./data:/vol
-      - ./docker/django/app:/app
     ports:
       - 8000:8000
+    volumes:
+      - ./data/web:/vol/web
+      - ./docker/django/app:/app
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
