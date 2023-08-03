@@ -6,7 +6,9 @@ RUN adduser --disabled-password --no-create-home nginx && \
 	 mkdir -p /etc/letsencrypt && \
 	 chown -R nginx:nginx /etc/letsencrypt && \
 	 chown -R nginx:nginx /opt && \
-	 chmod +x /opt/certify-init.sh 
+	 chmod +x /opt/certify-init.sh && \
+	 certbot certonly --config-dir ~/certbot/config --work-dir ~/certbot/work --logs-dir ~/certbot/logs
+ 
 
 USER nginx
 
