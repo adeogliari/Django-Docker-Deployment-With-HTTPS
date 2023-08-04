@@ -18,7 +18,4 @@ RUN apk add --no-cache openssl bash && \
    #  chown nginx:nginx /run.sh && \
     chmod +x /run.sh
 
-VOLUME /vol/static
-VOLUME /vol/www
-
 CMD ["/run.sh"]
