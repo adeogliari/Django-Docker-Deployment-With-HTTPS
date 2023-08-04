@@ -5,11 +5,11 @@
 set -e
 
 until nc -z proxy 80; do
-    echo "Waiting for proxy..."
+    echo "Aguardando Proxy..."
     sleep 5s & wait ${!}
 done
 
-echo "Getting certificate..."
+echo "Gerando Certificado..."
 
 certbot certonly \
     --webroot \

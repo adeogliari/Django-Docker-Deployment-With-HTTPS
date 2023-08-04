@@ -25,7 +25,7 @@ services:
   certbot:
     build:
       context: ./docker/certbot
-    command: echo "Skipping..."
+    command: echo "Saindo..."
     depends_on:
       - proxy
     environment:
