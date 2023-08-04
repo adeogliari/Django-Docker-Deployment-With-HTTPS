@@ -4,6 +4,7 @@ services:
   app:
     build:
       context: ./docker/django
+      dockerfile: ./Dockerfile.prod
     restart: always
     depends_on: 
       - db
