@@ -33,7 +33,7 @@ services:
       - DOMAIN=${DOMAIN}
     volumes:
       - certbot-web:/vol/www
-      - certbot-certs:/etc/letsencrypt
+      - certbot-certs:/etc/letsencrypt/
     networks:
       - django_net
 
