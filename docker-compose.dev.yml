@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: ./docker/django
+      dockerfile: ./Dockerfile.dev
+    depends_on: 
+      - db
+    environment:
+      - DJANGO_SECRET_KEY=devsecretkey
+      - DJANGO_DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1
+      - DB_HOST=db
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=dbuserpass
+    volumes:
+      - ./data/web:/vol/web
+      - ./docker/django/app:/app
+    ports:
+      - 8000:8000
+    networks:
+      - django_net
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=dbuserpass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - django_net
+  
+networks:
+  django_net:
+    driver: bridge
+
+volumes:
+  postgres-data:

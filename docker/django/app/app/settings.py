@@ -27,7 +27,7 @@ DEBUG = bool(int(os.environ.get("DJANGO_DEBUG", 0)))
 
 ALLOWED_HOSTS = ['*'] if DEBUG else os.environ.get('DJANGO_ALLOWED_HOSTS').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['https://' + os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS')]
+CSRF_TRUSTED_ORIGINS = [] if DEBUG else ['https://' + os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS')]
 
 # Application definition
 
