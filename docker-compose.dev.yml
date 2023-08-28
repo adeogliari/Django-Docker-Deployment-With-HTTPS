@@ -4,7 +4,18 @@ services:
   app:
     build:
       context: ./docker/django
-      dockerfile: ./Dockerfile.dev
+    command: >
+      sh -c " set -e && 
+
+              until nc -z db 5432; do
+                  echo 'Aguardando Banco de Dados...'
+                  sleep 2s
+              done &&
+              echo 'Banco de Dados Pronto!' &&
+
+              python manage.py collectstatic --noinput &&
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000"
     depends_on: 
       - db
     environment:

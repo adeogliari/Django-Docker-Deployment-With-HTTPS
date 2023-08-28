@@ -4,7 +4,24 @@ services:
   app:
     build:
       context: ./docker/django
-      dockerfile: ./Dockerfile.prod
+    command: >
+      sh -c " set -e && 
+
+              until nc -z ${DB_HOST} ${DB_PORT}; do
+                  echo 'Aguardando Banco de Dados...'
+                  sleep 2s
+              done &&
+              echo 'Banco de Dados Pronto!' &&
+
+              ls -la /vol/ &&
+              ls -la /vol/web &&
+
+              whoami
+
+              python manage.py collectstatic --noinput &&
+              python manage.py migrate &&
+              
+              uwsgi --socket :9000 --workers 4 --master --enable-threads --module app.wsgi"
     restart: always
     depends_on: 
       - db
@@ -13,7 +30,8 @@ services:
       - DJANGO_DEBUG=${DJANGO_DEBUG}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DJANGO_CSRF_TRUSTED_ORIGINS=${DOMAIN}
-      - DB_HOST=db
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
