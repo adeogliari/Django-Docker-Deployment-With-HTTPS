@@ -4,7 +4,6 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /requirements.txt
 COPY ./app /app
-COPY ./scripts /scripts
 
 WORKDIR /app
 
@@ -20,7 +19,6 @@ RUN python -m venv /py && \
     mkdir -p /vol/web/media && \
     chown -R django:django /vol && \
     chmod -R 755 /vol && \
-	 	chmod -R +x /scripts
 
 ENV PATH="/scripts:/py/bin:$PATH"
 
