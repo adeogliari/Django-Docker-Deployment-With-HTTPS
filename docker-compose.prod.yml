@@ -45,7 +45,7 @@ services:
       context: ./docker/certbot
     command: echo "Saindo..."
     depends_on:
-      - proxy
+      - nginx
     environment:
       - EMAIL=${ACME_DEFAULT_EMAIL}
       - DOMAIN=${DOMAIN}
@@ -55,7 +55,7 @@ services:
     networks:
       - django_net
 
-  proxy:
+  nginx:
     build:
       context: ./docker/proxy
     restart: always
@@ -63,6 +63,8 @@ services:
       - app
     environment:
       - DOMAIN=${DOMAIN}
+      - APP_HOST=app
+      - APP_PORT=9000
     volumes:
       - static-data:/vol/static
       - certbot-web:/vol/www

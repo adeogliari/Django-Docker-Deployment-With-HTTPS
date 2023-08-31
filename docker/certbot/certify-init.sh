@@ -5,7 +5,7 @@
 set -e
 
 until nc -z proxy 80; do
-    echo "Aguardando Proxy..."
+    echo "Aguardando nginx..."
     sleep 5s & wait ${!}
 done
 
