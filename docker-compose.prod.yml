@@ -57,7 +57,7 @@ services:
 
   nginx:
     build:
-      context: ./docker/proxy
+      context: ./docker/nginx
     restart: always
     depends_on:
       - app
