@@ -63,8 +63,6 @@ services:
       - app
     environment:
       - DOMAIN=${DOMAIN}
-      - APP_HOST=app
-      - APP_PORT=9000
     volumes:
       - static-data:/vol/static
       - certbot-web:/vol/www
