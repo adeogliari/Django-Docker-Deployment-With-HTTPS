@@ -26,6 +26,30 @@ Essa é uma base criada para auxiliar o desenvolvimento de projetos Django. Esta
 #### Redes:
 - **django_net**: Rede bridge utilizada para a comunicação entre os serviços.
 
+### Estrutura de pastas do Django
+```
+| app
+	|-- core
+	|-- aplicação
+		|-- static
+			|-- css
+			|-- js
+			|-- imgs
+			|-- svg
+			|-- font
+			|-- video
+		|-- templates
+			|-- aplicação
+	|-- static
+		|-- css
+		|-- js
+		|-- imgs
+		|-- svg
+		|-- font
+		|-- video
+	|-- templates
+```
+
 ## Recursos
 
 - **Criação de certificado com Let's Encrypt**: Configuração automática de certificado SSL para garantir comunicações seguras.
@@ -44,52 +68,88 @@ Essa é uma base criada para auxiliar o desenvolvimento de projetos Django. Esta
 - Editor de códigos ou IDE compatível com Python
 
 ### Preparando o projeto
-1 - Clone este repositório
+#### 1 - Clone este repositório
 
-2 - Acesse a pasta do projeto e exclua a pasta .git
+#### 2 - Acesse a pasta do projeto e exclua a pasta .git
 ```bash
 cd django_https && sudo rm -r .git
 ```
 
-3 - Renomeie o arquivo .env.sample para .env e defina as variáveis de ambiente
+#### 3 - Copie o arquivo .env.sample para .env e defina as variáveis de ambiente
 ```bash
-mv .env.sample .env && nano .env
+cp .env.sample .env && nano .env
 ```
 
-### Variáveis de Ambiente
+## Variáveis de Ambiente
 
 Este projeto foi planejado para trabalhar com variáveis de ambientes tanto para desenvolvimento quanto para deploy em produção. Abaixo estão as variáveis e suas descrições
 
-```js
-//Configurações de Segurança
-DJANGO_SECRET_KEY=devsecretkey //Necessário se o debug for 0
-DJANGO_ALLOWED_HOSTS=127.0.0.1 //IPs ou domínios separados por "," (127.0.0.1,domain.example.com)
-DJANGO_DEBUG=1 // 0 = false / 1 = true (Excluir no ambiente de produção)
+```py
+# Configurações de Segurança
+DJANGO_SECRET_KEY=devsecretkey # Necessário em produção ou se o debug for 0
+DJANGO_ALLOWED_HOSTS=127.0.0.1 # IPs ou domínios separados por "," (127.0.0.1,domain.example.com)
+DJANGO_DEBUG=1 # 0 = false / 1 = true
 
-//Configuração do banco de dados
-DB_NAME=dbname
-DB_USER=dbuser
-DB_PASS=dbuserpass 
+# Configuração do banco de dados
+DB_HOST=db # Use o IP, Endpoint ou nome do container
+DB_PORT=5432 # Porta de conexão
+DB_NAME=dbname # Nome do schema
+DB_USER=dbuser # Usuário
+DB_PASS=dbuserpass # Senha
 
-//Configuração do SSL para habilitar HTTPS
-DOMAIN=domain.example.com //Usado para gerar o certificado para o SSL e Definir o CSRF_TRUSTED_ORIGINS
-ACME_DEFAULT_EMAIL=email@domain.example.com //Usado para gerar o certificado para o SSL
+# Configuração do SSL para habilitar HTTPS
+DOMAIN=domain.example.com # Usado para gerar o certificado para o SSL e Definir o CSRF_TRUSTED_ORIGINS
+ACME_DEFAULT_EMAIL=email@domain.example.com # Usado para gerar o certificado para o SSL
+
 ```
 
 ## Iniciando um projeto
 
 No ambiente de desenvolvimento nós trabalhamos apenas com os serviços **app** e **db**
 
-### 1 - Monte as imagens dos services
+### Iniciando o git
+```bash
+git init
+```
+
+### Montando as imagens dos services
 ```bash
 docker compose -f docker-compose.dev.yml build
 ```
 
-### 2- Inicie os containers das imagens
+### Iniciando os containers das imagens
 ```bash
 docker compose -f docker-compose.dev.yml up
 ```
 
-Ao subir os containers, o container do **app** irá primeiro aguardar a conexão com o banco de dados, quando a conexão for completada ele irá executar os comandos collect static e migrate colocando os arquivos estáticos na pasta /data/web/static e também criando a primeira versão do banco de dados.
+Ao subir os containers, o container do **app** irá primeiro aguardar a conexão com o banco de dados, quando a conexão for completada ele irá executar os comandos collect static e migrate gerando os arquivos estáticos e também criando a primeira versão do banco de dados.
+
+### Criando as aplicações
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py startapp nome_django_app'
+```
+
+### Criando django superuser
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py createsuperuser'
+```
+
+## Outros comandos
+
+### Criando Migrations
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py makemigrations'
+```
+
+### Gerando django secret key
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"'
+```
+
+
+
+
+
+
 
 
