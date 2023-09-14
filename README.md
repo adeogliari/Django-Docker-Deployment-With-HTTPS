@@ -133,12 +133,15 @@ docker compose -f docker-compose.prod.yml run --rm app sh -c 'python -c "from dj
 ```
 
 #### Alterando as variáveis de ambiente e inserindo a secret key
+```bash
+nano .env
+```
 
 ```py
 # Configurações de Segurança
 DJANGO_SECRET_KEY=devsecretkey # Necessário em produção ou se o debug for 0
 DJANGO_ALLOWED_HOSTS=127.0.0.1 # IPs ou domínios separados por "," (127.0.0.1,domain.example.com)
-DJANGO_DEBUG=1 # 0 = false (Desenvolvimento e Homologação) / 1 = true (Produção)
+DJANGO_DEBUG=1 # 1 = true (Desenvolvimento e Homologação) / 0 = false (Produção)
 
 # Configuração do banco de dados
 DB_HOST=db # Use o IP, Endpoint ou nome do container
