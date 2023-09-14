@@ -11,7 +11,7 @@ Essa é uma base criada para auxiliar o desenvolvimento de projetos Django. Esta
 ## Arquitetura
 
 ### Estrutura do docker
-#### Serviços:
+#### Serviços / Containers:
 - **app**: O núcleo da aplicação Django.
 - **certbot**: Encarregado de gerir os certificados SSL via Let's Encrypt.
 - **proxy**: NGINX atuando como servidor proxy reverso.
@@ -28,11 +28,11 @@ Essa é uma base criada para auxiliar o desenvolvimento de projetos Django. Esta
 
 ### Estrutura de pastas relevantes
 ```py
-data/ # Pasta para visualizar os volumes de arquivos
+data/ # Pasta para visualizar os volumes de arquivos no ambiente de desenvolvimento
 │
-└── web/ # Volume para arquivos estáticos
-    ├── media/ # Arquivos de upload do usuário
-    └── static/ # Arquivos estáticos coletados
+└── web/ # Volume para arquivos estáticos gerenciados pelo django
+    ├── media/ # Arquivos de uploads feitos através do django
+    └── static/ # Arquivos estáticos coletados pelo django
 
 docker/
 │
@@ -81,86 +81,58 @@ docker/
 
 No ambiente de desenvolvimento nós trabalhamos apenas com os serviços **app** e **db**
 
-### Faça um fork desse repositório ou clone esse repositório e delete a pasta .git
+### Definindo as variáveis do ambiente de desenvolvimento
+Copie o arquivo modelo e faça os ajustes que julgar necessário, não o exclua, ele será a base para o ambiente de produção.
 
-### Entre na pasta do projeto e copie o arquivo .env.sample para .env
 ```bash
-cp .env.sample .env
+cp .env.sample .env && nano .env
 ```
 
-### Defina as variáveis de ambiente
-```bash
-nano .env
-```
-
-Este projeto foi planejado para trabalhar com variáveis de ambientes tanto para desenvolvimento quanto para deploy em produção. Abaixo estão as variáveis e suas descrições
-
-```py
-# Configurações de Segurança
-DJANGO_SECRET_KEY=devsecretkey # Necessário em produção ou se o debug for 0
-DJANGO_ALLOWED_HOSTS=127.0.0.1 # IPs ou domínios separados por "," (127.0.0.1,domain.example.com)
-DJANGO_DEBUG=1 # 0 = false (Desenvolvimento e Homologação) / 1 = true (Produção)
-
-# Configuração do banco de dados
-DB_HOST=db # Use o IP, Endpoint ou nome do container
-DB_PORT=5432 # Porta de conexão
-DB_NAME=dbname # Nome do schema
-DB_USER=dbuser # Usuário
-DB_PASS=dbuserpass # Senha
-
-# Configuração do SSL para habilitar HTTPS
-DOMAIN=domain.example.com # Usado para gerar o certificado para o SSL e Definir o CSRF_TRUSTED_ORIGINS
-ACME_DEFAULT_EMAIL=email@domain.example.com # Usado para gerar o certificado para o SSL
-
-```
-
-### Iniciando o git
-```bash
-git init
-```
-
-### criando branch feature
-```bash
-git checkout -b feat/nome_feature
-```
-
-### Montando as imagens dos services
+### Montando o docker
 ```bash
 docker compose -f docker-compose.dev.yml build
 ```
 
-### Iniciando os containers das imagens
+### Subindo os containers das imagens
 ```bash
 docker compose -f docker-compose.dev.yml up
 ```
 
 Ao subir os containers, o container do **app** irá primeiro aguardar a conexão com o banco de dados, quando a conexão for completada ele irá executar os comandos collect static e migrate gerando os arquivos estáticos e também criando a primeira versão do banco de dados.
 
-### Criando as aplicações
-```bash
-docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py startapp nome_django_app'
-```
-
 ### Criando django superuser
 ```bash
 docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py createsuperuser'
 ```
 
+### Criando as aplicações
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py startapp nome_django_app'
+```
+
+- **Lembre-se:** Os templates e arquivos estáticos globais do projeto ficam nas pastas na raiz do projeto e os de aplicações ficam dentro das aplicações, siga a estrutura de pastas do projeto apresentadas anteriormente.
+
+### Criando Migrations
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py makemigrations'
+```
+
 ## Deploy em produção
+No ambiente de produção, por padrão, subiremos todos os Serviços/Containers.
 
-#### 1 - Clone o seu repositório para o ambiente de produção
+### Definindo as variáveis do ambiente de produção
 
-#### 2 - Entre na pasta do projeto e copie o arquivo .env.sample para .env
+#### Copiando o arquivo modelo
+
 ```bash
 cp .env.sample .env
 ```
-
-#### 3 - Defina as variáveis de ambiente para produção
+#### Gerando django secret key
 ```bash
-nano .env
+docker compose -f docker-compose.prod.yml run --rm app sh -c 'python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"'
 ```
 
-Este projeto foi planejado para trabalhar com variáveis de ambientes tanto para desenvolvimento quanto para deploy em produção. Abaixo estão as variáveis e suas descrições
+#### Alterando as variáveis de ambiente e inserindo a secret key
 
 ```py
 # Configurações de Segurança
@@ -176,26 +148,35 @@ DB_USER=dbuser # Usuário
 DB_PASS=dbuserpass # Senha
 
 # Configuração do SSL para habilitar HTTPS
-DOMAIN=domain.example.com # Usado para gerar o certificado para o SSL e Definir o CSRF_TRUSTED_ORIGINS
+DOMAIN=domain.example.com # Usado para gerar o certificado SSL, definir o host do nginx e definir o CSRF_TRUSTED_ORIGINS
 ACME_DEFAULT_EMAIL=email@domain.example.com # Usado para gerar o certificado para o SSL
 ```
+### Gerando o certificado SSL
+Esse processo pode demorar um pouco, pois, na primeira vez que subimos nossos serviços o container do nginx irá gerar o arquivo dhparams e salvá-lo no volume para que não seja necessário gerar novamente caso precisemos recriar o container.
 
-#### Gerando django secret key
 ```bash
-docker compose -f docker-compose.dev.yml run --rm app sh -c 'python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"'
+docker-compose -f docker-compose.prod.yml run --rm certbot /opt/certify-init.sh
+```
+
+- **Observação:** O certificado SSL só pode ser gerado para domínios válidos, caso utilize o IP do host não será possível gerar o certificado, nesse caso o projeto está configurado para utilizar automaticamente o protocolo HTTP na porta 80. Se o certificado estiver configurado a aplicação irá forçar o uso do HTTPS pela porta 443
+
+### Recriando os containers das imagens
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+```bash
+docker compose -f docker-compose.prod.yml up
+```
+
+Ao subir os containers, o container do **app** irá primeiro aguardar a conexão com o banco de dados, quando a conexão for completada ele irá executar os comandos collect static e migrate gerando os arquivos estáticos e também criando a primeira versão do banco de dados.
+
+### Criando django superuser
+```bash
+docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py createsuperuser'
 ```
 
 ## Outros comandos
-
-### Criando Migrations
-```bash
-docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py makemigrations'
-```
-
-### Gerando django secret key
-```bash
-docker compose -f docker-compose.dev.yml run --rm app sh -c 'python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"'
-```
 
 ### Acessando containers com sh
 ```bash
