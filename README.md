@@ -158,7 +158,7 @@ ACME_DEFAULT_EMAIL=email@domain.example.com # Usado para gerar o certificado par
 Esse processo pode demorar um pouco, pois, na primeira vez que subimos nossos serviços o container do nginx irá gerar o arquivo dhparams e salvá-lo no volume para que não seja necessário gerar novamente caso precisemos recriar o container.
 
 ```bash
-docker-compose -f docker-compose.prod.yml run --rm certbot /opt/certify-init.sh
+docker compose -f docker-compose.prod.yml run --rm certbot /opt/certify-init.sh
 ```
 
 - **Observação:** O certificado SSL só pode ser gerado para domínios válidos, caso utilize o IP do host não será possível gerar o certificado, nesse caso o projeto está configurado para utilizar automaticamente o protocolo HTTP na porta 80. Se o certificado estiver configurado a aplicação irá forçar o uso do HTTPS pela porta 443
@@ -176,7 +176,7 @@ Ao subir os containers, o container do **app** irá primeiro aguardar a conexão
 
 ### Criando django superuser
 ```bash
-docker compose -f docker-compose.dev.yml run --rm app sh -c 'python manage.py createsuperuser'
+docker compose -f docker-compose.prod.yml run --rm app sh -c 'python manage.py createsuperuser'
 ```
 
 ## Outros comandos
