@@ -3,13 +3,11 @@
 
 Essa é uma base criada para auxiliar o desenvolvimento de projetos Django. Esta estrutura combina o Django, NGINX, Let's Encrypt e Certbot em containers Docker, permitindo uma implementação flexível e escalável.
 
-![App Screenshot](./docker.png)
-
 ## Índice
 
 
 ## Arquitetura
-
+![App Screenshot](./docker.png)
 ### Estrutura do docker
 #### Serviços / Containers:
 - **app**: O núcleo da aplicação Django.
