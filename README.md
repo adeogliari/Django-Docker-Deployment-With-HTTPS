@@ -179,6 +179,14 @@ Ao subir os containers, o container do **app** irá primeiro aguardar a conexão
 docker compose -f docker-compose.prod.yml run --rm app sh -c 'python manage.py createsuperuser'
 ```
 
+## Considerações Finais
+
+### Renovando  o certificado SSL
+ Os certificados gerados serão válidos por apenas 3 meses, quando eles expirarem, utilize o comando abaixo para renová-los:
+```bash
+docker compose -f docker-compose.prod.yml run --rm certbot sh -c "certbot renew"
+```
+
 ## Outros comandos
 
 ### Acessando containers com sh
