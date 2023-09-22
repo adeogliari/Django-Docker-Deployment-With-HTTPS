@@ -191,11 +191,3 @@ docker compose -f docker-compose.prod.yml run --rm certbot sh -c "certbot renew"
 ```bash
 docker exec -it nome_completo_container sh
 ```
-
-
-
-
-
-
-
-
